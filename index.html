@@ -516,11 +516,27 @@
   }
 
   @media (max-width: 768px) {
-    .main { flex-direction: column; }
-    .editor-pane { border-right: none; border-bottom: 1px solid var(--border); }
-    .column-resizer { display: none; } /* Hide resizer on mobile */
-    .sidebar { display: none; } /* Hide sidebar by default on mobile */
-    .preview-pane { width: 100%; }
+    body { height: auto; min-height: 100vh; overflow: auto; -webkit-overflow-scrolling: touch; }
+    .main { flex-direction: column; height: auto; min-height: 0; overflow: visible; }
+    .editor-pane { 
+      border-right: none; 
+      border-bottom: 1px solid var(--border); 
+      min-height: 40vh; 
+      max-height: 50vh;
+      overflow: hidden;
+    }
+    .editor-pane textarea { 
+      -webkit-overflow-scrolling: touch; 
+      overflow-y: auto;
+    }
+    .column-resizer { display: none; }
+    .sidebar { display: none; }
+    .preview-pane { 
+      width: 100%; 
+      min-height: 40vh;
+      overflow-y: auto; 
+      -webkit-overflow-scrolling: touch; 
+    }
     .toolbar { 
       flex-wrap: wrap; 
       gap: 4px; 
@@ -531,7 +547,7 @@
       padding: 4px 8px; 
       font-size: 11px; 
     }
-    .toolbar .spacer { min-width: 100%; }
+    .toolbar .spacer { min-width: 4px; }
     .toolbar .logo { font-size: 12px; margin-right: 8px; }
     .preview-content { padding: 20px 16px; }
     .shortcuts-modal { 
