@@ -589,6 +589,7 @@
   </select>
   <button onclick="toggleFindBar()" title="Find & Replace (Cmd+F)">🔍</button>
   <button onclick="showKeyboardShortcuts()" title="Keyboard Shortcuts">⌨️</button>
+  <button onclick="toggleTheme()" id="themeToggle" title="Toggle Dark/Light Mode (Cmd+D)">🌙</button>
   <button onclick="exportPDF()" class="primary">📄 Export PDF</button>
   <button onclick="exportHTML()">🌐 Export HTML</button>
 </div>
@@ -644,34 +645,66 @@ Supports:
     <h3>⌨️ Keyboard Shortcuts</h3>
     <div class="shortcuts-list">
       <div class="shortcut-item">
+      <div class="shortcut-item">
+        <span class="shortcut-desc">Toggle Dark/Light Mode</span>
+        <span class="shortcut-key">Cmd+D</span>
+      </div>
         <span class="shortcut-desc">Save file</span>
         <span class="shortcut-key">Cmd+S</span>
       </div>
       <div class="shortcut-item">
+      <div class="shortcut-item">
+        <span class="shortcut-desc">Toggle Dark/Light Mode</span>
+        <span class="shortcut-key">Cmd+D</span>
+      </div>
         <span class="shortcut-desc">Open file</span>
         <span class="shortcut-key">Cmd+O</span>
       </div>
       <div class="shortcut-item">
+      <div class="shortcut-item">
+        <span class="shortcut-desc">Toggle Dark/Light Mode</span>
+        <span class="shortcut-key">Cmd+D</span>
+      </div>
         <span class="shortcut-desc">Export PDF</span>
         <span class="shortcut-key">Cmd+P</span>
       </div>
       <div class="shortcut-item">
+      <div class="shortcut-item">
+        <span class="shortcut-desc">Toggle Dark/Light Mode</span>
+        <span class="shortcut-key">Cmd+D</span>
+      </div>
         <span class="shortcut-desc">Cycle view modes</span>
         <span class="shortcut-key">Cmd+E</span>
       </div>
       <div class="shortcut-item">
+      <div class="shortcut-item">
+        <span class="shortcut-desc">Toggle Dark/Light Mode</span>
+        <span class="shortcut-key">Cmd+D</span>
+      </div>
         <span class="shortcut-desc">Bold text</span>
         <span class="shortcut-key">Cmd+B</span>
       </div>
       <div class="shortcut-item">
+      <div class="shortcut-item">
+        <span class="shortcut-desc">Toggle Dark/Light Mode</span>
+        <span class="shortcut-key">Cmd+D</span>
+      </div>
         <span class="shortcut-desc">Italic text</span>
         <span class="shortcut-key">Cmd+I</span>
       </div>
       <div class="shortcut-item">
+      <div class="shortcut-item">
+        <span class="shortcut-desc">Toggle Dark/Light Mode</span>
+        <span class="shortcut-key">Cmd+D</span>
+      </div>
         <span class="shortcut-desc">Find & Replace</span>
         <span class="shortcut-key">Cmd+F</span>
       </div>
       <div class="shortcut-item">
+      <div class="shortcut-item">
+        <span class="shortcut-desc">Toggle Dark/Light Mode</span>
+        <span class="shortcut-key">Cmd+D</span>
+      </div>
         <span class="shortcut-desc">Close overlay</span>
         <span class="shortcut-key">Escape</span>
       </div>
@@ -1150,6 +1183,11 @@ document.addEventListener('keydown', (e) => {
     toggleFindBar();
   }
   
+  if (isCmdOrCtrl && e.key === 'd') {
+    e.preventDefault();
+    toggleTheme();
+  }
+  
   // New keyboard shortcuts
   if (isCmdOrCtrl && e.key === 's') {
     e.preventDefault();
@@ -1214,6 +1252,9 @@ function initializeColumnResizer() {
     resizer.classList.add('dragging');
     document.body.style.cursor = 'col-resize';
     document.body.style.userSelect = 'none';
+    document.body.style.webkitUserSelect = 'none';
+    document.body.style.mozUserSelect = 'none';
+    document.body.style.msUserSelect = 'none';
     e.preventDefault();
   });
 
@@ -1239,6 +1280,9 @@ function initializeColumnResizer() {
       resizer.classList.remove('dragging');
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
+      document.body.style.webkitUserSelect = '';
+      document.body.style.mozUserSelect = '';
+      document.body.style.msUserSelect = '';
     }
   });
 }
@@ -1316,6 +1360,35 @@ function showKeyboardShortcuts() {
 function hideKeyboardShortcuts() {
   document.getElementById('shortcutsOverlay').classList.remove('visible');
 }
+
+// ── Theme Toggle ──
+function toggleTheme() {
+  const body = document.body;
+  const themeButton = document.getElementById('themeToggle');
+  const hlTheme = document.getElementById('hlTheme');
+  
+  body.classList.toggle('light-mode');
+  
+  if (body.classList.contains('light-mode')) {
+    themeButton.textContent = '☀️';
+    themeButton.title = 'Switch to Dark Mode (Cmd+D)';
+    hlTheme.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+    localStorage.setItem('md-preview-theme', 'light');
+  } else {
+    themeButton.textContent = '🌙';
+    themeButton.title = 'Switch to Light Mode (Cmd+D)';
+    hlTheme.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css';
+    localStorage.setItem('md-preview-theme', 'dark');
+  }
+}
+
+// Load saved theme
+document.addEventListener('DOMContentLoaded', () => {
+  const savedTheme = localStorage.getItem('md-preview-theme');
+  if (savedTheme === 'light') {
+    toggleTheme();
+  }
+});
 
 // ── Table of Contents ──
 function generateTOC() {
