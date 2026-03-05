@@ -343,14 +343,15 @@
   .find-highlight { background: rgba(255, 215, 0, 0.4); border-radius: 2px; }
 
   /* View modes */
-  body.view-editor .preview-pane { display: none; }
-  body.view-editor .editor-pane { flex: 1; }
-  body.view-editor .column-resizer { display: none; }
-  body.view-preview .editor-pane { display: none; }
-  body.view-preview .preview-pane { flex: 1; }
-  body.view-preview .column-resizer { display: none; }
-  body.view-preview .sidebar { display: none; }
-  body.view-editor .sidebar { display: none; }
+  body.view-editor .preview-pane { display: none !important; }
+  body.view-editor .editor-pane { flex: 1 1 100% !important; width: 100%; height: 100%; }
+  body.view-editor .editor-pane textarea { height: 100%; }
+  body.view-editor .column-resizer { display: none !important; }
+  body.view-preview .editor-pane { display: none !important; }
+  body.view-preview .preview-pane { flex: 1 1 100% !important; width: 100%; height: 100%; }
+  body.view-preview .column-resizer { display: none !important; }
+  body.view-preview .sidebar { display: none !important; }
+  body.view-editor .sidebar { display: none !important; }
 
   /* Status bar */
   .status-bar {
@@ -1358,8 +1359,8 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register(
     URL.createObjectURL(
       new Blob([`
-        const CACHE_NAME = 'md-preview-v1';
-        const urlsToCache = [
+        const CACHE_NAME = 'md-preview-v2';
+        const CDN_URLS = [
           'https://cdn.jsdelivr.net/npm/marked/marked.min.js',
           'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js',
           'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js',
@@ -1368,17 +1369,31 @@ if ('serviceWorker' in navigator) {
         ];
 
         self.addEventListener('install', event => {
+          self.skipWaiting();
           event.waitUntil(
-            caches.open(CACHE_NAME)
-              .then(cache => cache.addAll(urlsToCache))
+            caches.open(CACHE_NAME).then(cache => cache.addAll(CDN_URLS))
+          );
+        });
+
+        self.addEventListener('activate', event => {
+          event.waitUntil(
+            caches.keys().then(keys => Promise.all(
+              keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+            )).then(() => self.clients.claim())
           );
         });
 
         self.addEventListener('fetch', event => {
-          event.respondWith(
-            caches.match(event.request)
-              .then(response => response || fetch(event.request))
-          );
+          const url = event.request.url;
+          if (CDN_URLS.some(cdn => url.startsWith(cdn.split('/').slice(0,3).join('/')))) {
+            event.respondWith(
+              caches.match(event.request).then(r => r || fetch(event.request))
+            );
+          } else {
+            event.respondWith(
+              fetch(event.request).catch(() => caches.match(event.request))
+            );
+          }
         });
       `], { type: 'application/javascript' })
     )
