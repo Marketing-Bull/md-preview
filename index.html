@@ -1354,50 +1354,17 @@ function initializeColumnResizer() {
 // Initialize resizer when DOM is ready
 document.addEventListener('DOMContentLoaded', initializeColumnResizer);
 
-// ── Service Worker Registration ──
+// ── Nuke old service workers & caches, then optionally re-register ──
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register(
-    URL.createObjectURL(
-      new Blob([`
-        const CACHE_NAME = 'md-preview-v2';
-        const CDN_URLS = [
-          'https://cdn.jsdelivr.net/npm/marked/marked.min.js',
-          'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js',
-          'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js',
-          'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
-          'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css'
-        ];
-
-        self.addEventListener('install', event => {
-          self.skipWaiting();
-          event.waitUntil(
-            caches.open(CACHE_NAME).then(cache => cache.addAll(CDN_URLS))
-          );
-        });
-
-        self.addEventListener('activate', event => {
-          event.waitUntil(
-            caches.keys().then(keys => Promise.all(
-              keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-            )).then(() => self.clients.claim())
-          );
-        });
-
-        self.addEventListener('fetch', event => {
-          const url = event.request.url;
-          if (CDN_URLS.some(cdn => url.startsWith(cdn.split('/').slice(0,3).join('/')))) {
-            event.respondWith(
-              caches.match(event.request).then(r => r || fetch(event.request))
-            );
-          } else {
-            event.respondWith(
-              fetch(event.request).catch(() => caches.match(event.request))
-            );
-          }
-        });
-      `], { type: 'application/javascript' })
-    )
-  ).catch(console.error);
+  // Step 1: Unregister ALL existing service workers
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(reg => reg.unregister());
+  });
+  // Step 2: Clear ALL caches
+  if ('caches' in window) {
+    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+  }
+  // No service worker for now — it was causing stale cache issues.
 }
 
 // ── File Parameter Loading ──
