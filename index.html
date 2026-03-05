@@ -515,53 +515,77 @@
     .preview-content { padding: 32px 24px; max-width: none; }
   }
 
-  @media (max-width: 768px) {
-    body { height: auto; min-height: 100vh; overflow: auto; -webkit-overflow-scrolling: touch; }
-    .main { flex-direction: column; height: auto; min-height: 0; overflow: visible; }
-    .editor-pane { 
-      border-right: none; 
-      border-bottom: 1px solid var(--border); 
-      min-height: 40vh; 
-      max-height: 50vh;
+  /* ===== Touch devices (iPad, tablets, phones) ===== */
+  @media (pointer: coarse), (hover: none) {
+    body {
+      height: auto !important;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow: auto !important;
+      -webkit-overflow-scrolling: touch;
+    }
+    .main {
+      flex-direction: column !important;
+      height: auto !important;
+      min-height: 0;
+      overflow: visible !important;
+      flex: none;
+    }
+    .sidebar { display: none !important; }
+    .column-resizer { display: none !important; }
+    .editor-pane {
+      flex: none !important;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      min-height: 35vh;
+      max-height: 45vh;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
-    .editor-pane textarea { 
-      -webkit-overflow-scrolling: touch; 
-      overflow-y: auto;
+    .editor-pane textarea {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y pan-x;
+      font-size: 16px; /* prevents iOS zoom on focus */
     }
-    .column-resizer { display: none; }
-    .sidebar { display: none; }
-    .preview-pane { 
-      width: 100%; 
-      min-height: 40vh;
-      overflow-y: auto; 
-      -webkit-overflow-scrolling: touch; 
+    .preview-pane {
+      flex: none !important;
+      width: 100%;
+      min-height: 50vh;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y pan-x;
     }
-    .toolbar { 
-      flex-wrap: wrap; 
-      gap: 4px; 
-      padding: 6px 12px; 
+    .preview-content {
+      padding: 20px 16px;
+    }
+    .toolbar {
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 6px 12px;
+    }
+    .toolbar button, .toolbar select {
+      padding: 5px 10px;
       font-size: 12px;
     }
-    .toolbar button, .toolbar select { 
-      padding: 4px 8px; 
-      font-size: 11px; 
-    }
-    .toolbar .spacer { min-width: 4px; }
     .toolbar .logo { font-size: 12px; margin-right: 8px; }
-    .preview-content { padding: 20px 16px; }
-    .shortcuts-modal { 
-      padding: 16px; 
-      max-width: 95%; 
-    }
-    .find-bar { 
-      padding: 4px 12px; 
-      gap: 4px; 
-    }
-    .find-bar input { 
-      min-width: 120px; 
-      font-size: 12px; 
-    }
+    .toolbar .spacer { min-width: 4px; }
+    .shortcuts-modal { padding: 16px; max-width: 95%; }
+    .find-bar { padding: 4px 12px; gap: 4px; }
+    .find-bar input { min-width: 120px; font-size: 16px; }
+    /* View mode overrides for touch */
+    body.view-editor .editor-pane { max-height: none; min-height: 80vh; }
+    body.view-editor .preview-pane { display: none; }
+    body.view-preview .editor-pane { display: none; }
+    body.view-preview .preview-pane { min-height: 80vh; }
+  }
+
+  /* Phone-specific (narrow screens) */
+  @media (max-width: 768px) {
+    .toolbar .file-name { max-width: 120px; }
   }
 
   /* Highlight.js dark mode overrides */
