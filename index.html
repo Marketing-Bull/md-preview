@@ -140,6 +140,14 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: width 0.2s, min-width 0.2s, opacity 0.2s;
+  }
+  .sidebar.collapsed {
+    width: 0;
+    min-width: 0;
+    border-right: none;
+    opacity: 0;
+    pointer-events: none;
   }
 
 
@@ -528,7 +536,39 @@
       min-height: 0 !important;
       overflow: hidden !important;
     }
-    .sidebar { display: none !important; }
+    .sidebar {
+      position: fixed !important;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 260px !important;
+      min-width: 260px !important;
+      z-index: 300;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+      transform: translateX(-100%);
+      transition: transform 0.25s ease;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+    .sidebar.collapsed {
+      transform: translateX(-100%);
+      opacity: 1 !important;
+    }
+    .sidebar.open {
+      transform: translateX(0) !important;
+      width: 260px !important;
+      min-width: 260px !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 299;
+    }
+    .sidebar-overlay.visible { display: block; }
     .column-resizer { display: none !important; }
     .editor-pane {
       flex: 1 1 50% !important;
@@ -610,6 +650,7 @@
   </select>
   <button onclick="toggleFindBar()" title="Find & Replace (Cmd+F)">🔍</button>
   <button onclick="showKeyboardShortcuts()" title="Keyboard Shortcuts">⌨️</button>
+  <button onclick="toggleSidebar()" id="tocToggle" title="Toggle Table of Contents">📑</button>
   <button onclick="toggleTheme()" id="themeToggle" title="Toggle Dark/Light Mode (Cmd+D)">🌙</button>
   <button onclick="exportPDF()" class="primary">📄 Export PDF</button>
   <button onclick="exportHTML()">🌐 Export HTML</button>
@@ -630,6 +671,7 @@
   <button onclick="closeFindBar()">✕</button>
 </div>
 
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 <div class="main">
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">Table of Contents</div>
@@ -1411,6 +1453,35 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// ── Sidebar Toggle ──
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const isMobile = window.matchMedia('(max-width: 1024px) and (pointer: coarse)').matches;
+  
+  if (isMobile) {
+    // Mobile: slide-out overlay
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('visible', sidebar.classList.contains('open'));
+  } else {
+    // Desktop: collapse inline
+    sidebar.classList.toggle('collapsed');
+    localStorage.setItem('tocCollapsed', sidebar.classList.contains('collapsed'));
+  }
+}
+
+function closeSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  sidebar.classList.remove('open');
+  overlay.classList.remove('visible');
+}
+
+// Restore desktop TOC state
+if (localStorage.getItem('tocCollapsed') === 'true') {
+  document.getElementById('sidebar').classList.add('collapsed');
+}
+
 // ── Table of Contents ──
 function generateTOC() {
   const tocContent = document.getElementById('tocContent');
@@ -1440,9 +1511,12 @@ function scrollToHeading(id) {
   const element = document.getElementById(id);
   if (element) {
     element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    // Update active state
     document.querySelectorAll('.toc-item').forEach(item => item.classList.remove('active'));
     document.querySelector(`[onclick="scrollToHeading('${id}')"]`)?.classList.add('active');
+    // Close sidebar on mobile after clicking
+    if (window.matchMedia('(max-width: 1024px) and (pointer: coarse)').matches) {
+      closeSidebar();
+    }
   }
 }
 </script>
