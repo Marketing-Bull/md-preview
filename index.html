@@ -515,29 +515,27 @@
   }
 
   /* ===== Touch devices — only on small screens (iPad, tablets, phones) ===== */
+  /* ===== Tablet/touch: stack vertically, each pane gets half ===== */
   @media (max-width: 1024px) and (pointer: coarse) {
     body {
-      height: auto !important;
-      min-height: 100vh;
-      min-height: 100dvh;
-      overflow: auto !important;
-      -webkit-overflow-scrolling: touch;
+      height: 100vh !important;
+      height: 100dvh !important;
+      overflow: hidden !important;
     }
     .main {
       flex-direction: column !important;
-      height: auto !important;
-      min-height: 0;
-      overflow: visible !important;
-      flex: none;
+      flex: 1 !important;
+      min-height: 0 !important;
+      overflow: hidden !important;
     }
     .sidebar { display: none !important; }
     .column-resizer { display: none !important; }
     .editor-pane {
-      flex: none !important;
+      flex: 1 1 50% !important;
+      min-height: 0 !important;
+      max-height: none !important;
       border-right: none;
       border-bottom: 1px solid var(--border);
-      min-height: 35vh;
-      max-height: 45vh;
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -551,9 +549,9 @@
       font-size: 16px; /* prevents iOS zoom on focus */
     }
     .preview-pane {
-      flex: none !important;
+      flex: 1 1 50% !important;
+      min-height: 0 !important;
       width: 100%;
-      min-height: 50vh;
       overflow-y: auto !important;
       -webkit-overflow-scrolling: touch;
       touch-action: pan-y pan-x;
