@@ -34,6 +34,12 @@ mkdir -p "$MACOS" "$RESOURCES"
 # Copy HTML
 cp "$HTML_SRC" "$RESOURCES/index.html"
 
+# Copy icon if it exists
+ICON_SRC="$(dirname "$0")/icon.icns"
+if [ -f "$ICON_SRC" ]; then
+  cp "$ICON_SRC" "$RESOURCES/AppIcon.icns"
+fi
+
 # Create launcher
 cat > "$MACOS/launcher" << 'EOF'
 #!/bin/bash
@@ -80,6 +86,7 @@ cat > "$CONTENTS/Info.plist" << PLIST
 <plist version="1.0">
 <dict>
     <key>CFBundleExecutable</key><string>launcher</string>
+    <key>CFBundleIconFile</key><string>AppIcon</string>
     <key>CFBundleIdentifier</key><string>${BUNDLE_ID}</string>
     <key>CFBundleName</key><string>${APP_NAME}</string>
     <key>CFBundleDisplayName</key><string>${APP_NAME}</string>
